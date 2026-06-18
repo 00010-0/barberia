@@ -81,7 +81,10 @@
     .menu-row .dots { border-bottom: 1px dotted #3A3A3E; transform: translateY(-4px); }
 
     /* Vignette para legibilidad sobre el canvas */
-    .vignette { background: radial-gradient(120% 90% at 50% 35%, transparent 35%, rgba(10,10,11,.55) 72%, #0A0A0B 100%); }
+    .vignette { background:
+      radial-gradient(120% 120% at 26% 48%, transparent 42%, rgba(10,10,11,.45) 80%, #0A0A0B 100%),
+      linear-gradient(90deg, transparent 38%, rgba(10,10,11,.45) 82%); }
+    @media (max-width: 767px){ .vignette { background: radial-gradient(120% 110% at 50% 42%, transparent 30%, rgba(10,10,11,.6) 85%, #0A0A0B 100%); } }
 
     ::selection { background: #E8C46A; color: #0A0A0B; }
     :focus-visible { outline: 2px solid #F5D77E; outline-offset: 3px; border-radius: 4px; }
@@ -152,7 +155,7 @@
     <!-- Vignette -->
     <div class="absolute inset-0 -z-10 vignette pointer-events-none"></div>
 
-    <div class="relative z-10 px-5 text-center max-w-3xl mx-auto">
+    <div class="relative z-10 px-5 text-center max-w-3xl mx-auto md:ml-auto md:mr-[7%] md:max-w-lg">
       <p class="reveal text-xs sm:text-sm uppercase tracking-[0.35em] text-gold mb-7">Barbería &amp; Peluquería de autor</p>
 
       <h1 class="reveal relative inline-block mb-8">
@@ -417,74 +420,110 @@
     if (canvas) init();
 
     function init() {
+      const isMobile = window.innerWidth < 768;
       let renderer;
       try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); }
-      catch (e) { return; } // sin WebGL queda el fondo CSS
+      catch (e) { return; } // sin WebGL: queda el fondo CSS
 
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.toneMappingExposure = 1.1;
+      renderer.shadowMap.enabled = !isMobile;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-      camera.position.set(0, 0, 9);
+      camera.position.set(0, 0, 10);
 
-      const pole = new THREE.Group();
-      scene.add(pole);
-
-      // Polvo dorado ambiental
-      const isMobile = window.innerWidth < 640;
-      const COUNT = isMobile ? 80 : 150;
-      const pts = new Float32Array(COUNT * 3);
-      for (let i = 0; i < COUNT; i++) {
-        pts[i*3] = (Math.random()-.5)*16; pts[i*3+1] = (Math.random()-.5)*12; pts[i*3+2] = (Math.random()-.5)*8-2;
+      // ---------- Pared de barbería (fondo) ----------
+      function wallTexture() {
+        const W = 512, c = document.createElement('canvas'); c.width = c.height = W;
+        const x = c.getContext('2d');
+        x.fillStyle = '#101013'; x.fillRect(0, 0, W, W);
+        const panel = W / 4;                       // paneles verticales
+        for (let i = 0; i <= 4; i++) {
+          const px = i * panel;
+          x.fillStyle = 'rgba(0,0,0,.5)';            x.fillRect(px - 2, 0, 3, W);
+          x.fillStyle = 'rgba(255,236,195,.045)';    x.fillRect(px + 1, 0, 1, W);
+        }
+        for (let n = 0; n < 2400; n++) {           // grano sutil
+          x.fillStyle = 'rgba(255,240,210,' + (Math.random() * 0.05) + ')';
+          x.fillRect(Math.random() * W, Math.random() * W, 1, 1);
+        }
+        const t = new THREE.CanvasTexture(c);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 2);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
       }
-      const pGeo = new THREE.BufferGeometry();
-      pGeo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
-      const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({
-        color: 0xE8C46A, size: 0.045, transparent: true, opacity: 0.7,
-        blending: THREE.AdditiveBlending, depthWrite: false
-      }));
+      const wall = new THREE.Mesh(
+        new THREE.PlaneGeometry(64, 38),
+        new THREE.MeshStandardMaterial({ map: wallTexture(), roughness: 0.96, metalness: 0 })
+      );
+      wall.position.set(0, 0, -3.2); wall.receiveShadow = true; scene.add(wall);
+
+      // ---------- Montura en la pared (izquierda) ----------
+      const mount = new THREE.Group(); scene.add(mount);   // estático
+      const spinner = new THREE.Group(); mount.add(spinner); // gira el poste
+
+      const board = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 7.0, 0.3),
+        new THREE.MeshStandardMaterial({ color: 0x1b130d, roughness: 0.7, metalness: 0.12 })
+      );
+      board.position.set(0, 0, -1.4); board.receiveShadow = true; board.castShadow = !isMobile;
+      mount.add(board);
+
+      const screwMat = new THREE.MeshStandardMaterial({ color: 0xD9B45A, metalness: 0.95, roughness: 0.25 });
+      [[-0.92, 3.2], [0.92, 3.2], [-0.92, -3.2], [0.92, -3.2]].forEach(([sx, sy]) => {
+        const s = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), screwMat);
+        s.position.set(sx, sy, -1.22); mount.add(s);
+      });
+
+      // ---------- Polvo dorado ----------
+      const COUNT = isMobile ? 70 : 130;
+      const pts = new Float32Array(COUNT * 3);
+      for (let i = 0; i < COUNT; i++) { pts[i*3] = (Math.random()-.5)*18; pts[i*3+1] = (Math.random()-.5)*12; pts[i*3+2] = (Math.random()-.5)*6-1; }
+      const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+      const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xE8C46A, size: 0.045, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false }));
       scene.add(dust);
 
-      // Luces
-      scene.add(new THREE.AmbientLight(0x2a2620, 1.3));
+      // ---------- Luces ----------
+      scene.add(new THREE.AmbientLight(0x282219, 1.1));
       const key = new THREE.DirectionalLight(0xfff0d0, 2.2); key.position.set(3, 5, 6); scene.add(key);
-      const rim = new THREE.PointLight(0xff7a3c, 1.5, 45); rim.position.set(-5, 2, 3); scene.add(rim);
-      const back = new THREE.DirectionalLight(0xffd98a, 0.9); back.position.set(-3, -2, -5); scene.add(back);
-      const fill = new THREE.DirectionalLight(0xbfd0ff, 0.5); fill.position.set(0, -4, 4); scene.add(fill);
+      const spot = new THREE.SpotLight(0xffe6b0, 45, 0, Math.PI / 5, 0.6, 1.0); // foco -> pool + sombra
+      spot.position.set(-2.5, 5, 7); spot.target = mount; scene.add(spot);
+      spot.castShadow = !isMobile;
+      if (!isMobile) { spot.shadow.mapSize.set(1024, 1024); spot.shadow.bias = -0.0006; spot.shadow.camera.near = 1; spot.shadow.camera.far = 30; }
+      const rim = new THREE.PointLight(0xff7a3c, 2, 40, 1); rim.position.set(-7, 1, 3); scene.add(rim);
+      const back = new THREE.DirectionalLight(0xffd98a, 0.55); back.position.set(-3, -2, -4); scene.add(back);
 
+      // ---------- Modelo del poste (GLB embebido) ----------
       let ready = false;
-      pole.rotation.z = 0.03;
-
-      // Cargar el modelo del poste (GLB embebido)
-      const loader = new GLTFLoader();
-      loader.setMeshoptDecoder(MeshoptDecoder);
+      const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
       loader.load(window.__POLE_GLB, (gltf) => {
         const model = gltf.scene;
-        model.traverse((o) => { if (o.isMesh && o.material) { o.material.envMapIntensity = 1; o.castShadow = false; } });
+        model.traverse(o => { if (o.isMesh) { o.castShadow = !isMobile; o.receiveShadow = false; } });
         const box = new THREE.Box3().setFromObject(model);
         const size = new THREE.Vector3(); box.getSize(size);
         const center = new THREE.Vector3(); box.getCenter(center);
-        model.position.sub(center);                 // centrar
-        const s = 6.4 / (size.y || 1);              // escalar a altura objetivo
-        model.scale.setScalar(s);
-        pole.add(model);
-        ready = true;
-      }, undefined, (err) => { console.warn('Modelo no disponible:', err); });
+        model.position.sub(center);
+        model.scale.setScalar(6.2 / (size.y || 1));
+        spinner.add(model); ready = true;
+      }, undefined, (err) => console.warn('Modelo no disponible:', err));
 
       function resize() {
         const w = canvas.clientWidth, h = canvas.clientHeight;
         renderer.setSize(w, h, false);
         camera.aspect = w / h; camera.updateProjectionMatrix();
-        camera.position.z = w < 640 ? 11 : 9.5;
-        pole.scale.setScalar(w < 640 ? 0.82 : 0.95);
+        const small = w < 768;
+        camera.position.z = small ? 12 : 10;
+        mount.position.x = small ? -1.25 : -4.6;     // a la izquierda
+        mount.scale.setScalar(small ? 0.58 : 0.92);
       }
       window.addEventListener('resize', resize); resize();
 
       let visible = true, hidden = false;
-      new IntersectionObserver((e) => { visible = e[0].isIntersecting; }, { threshold: 0 }).observe(canvas);
+      new IntersectionObserver(e => { visible = e[0].isIntersecting; }, { threshold: 0 }).observe(canvas);
       document.addEventListener('visibilitychange', () => { hidden = document.hidden; });
 
       const clock = new THREE.Clock();
@@ -493,10 +532,10 @@
         if (!visible || hidden) return;
         const dt = clock.getDelta();
         if (!reduced) {
-          if (ready) pole.rotation.y += dt * 0.35;   // giro del poste
+          if (ready) spinner.rotation.y += dt * 0.4;   // el poste gira
           dust.rotation.y += dt * 0.02;
           const p = dust.geometry.attributes.position.array;
-          for (let i = 1; i < p.length; i += 3) { p[i] += dt * 0.25; if (p[i] > 6) p[i] = -6; }
+          for (let i = 1; i < p.length; i += 3) { p[i] += dt * 0.22; if (p[i] > 6) p[i] = -6; }
           dust.geometry.attributes.position.needsUpdate = true;
         }
         renderer.render(scene, camera);
