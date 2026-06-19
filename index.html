@@ -83,6 +83,28 @@
     /* Vignette para legibilidad sobre el canvas */
     .vignette { background: radial-gradient(125% 115% at 50% 44%, transparent 44%, rgba(10,10,11,.48) 80%, #0A0A0B 100%); }
     @media (max-width: 767px){ .vignette { background: radial-gradient(120% 110% at 50% 42%, transparent 30%, rgba(10,10,11,.6) 85%, #0A0A0B 100%); } }
+    /* ===== Fondo artístico de barbería ===== */
+    .hero-art { position:absolute; inset:0; z-index:-20; overflow:hidden; pointer-events:none;
+      background:
+        radial-gradient(75% 55% at 50% 18%, rgba(245,215,126,.13), transparent 62%),
+        radial-gradient(95% 75% at 50% 122%, rgba(212,162,58,.07), transparent 62%),
+        linear-gradient(180deg,#0c0c10 0%, #0a0a0b 55%, #070708 100%); }
+    .hero-art > i { position:absolute; inset:0; display:block; }
+    .hero-art .panels { opacity:.55;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 156px, rgba(0,0,0,.42) 156px 160px),
+        repeating-linear-gradient(90deg, rgba(245,215,126,.05) 0 1px, transparent 1px 160px); }
+    .hero-art .rays { left:50%; top:0; right:auto; bottom:auto; width:170vmax; height:170vmax;
+      transform:translate(-50%,-48%);
+      background:repeating-conic-gradient(from 0deg, rgba(212,162,58,.08) 0 .7deg, transparent .7deg 5deg);
+      -webkit-mask:radial-gradient(closest-side, rgba(0,0,0,.95), transparent 70%);
+              mask:radial-gradient(closest-side, rgba(0,0,0,.95), transparent 70%);
+      opacity:.5; }
+    .hero-art .motifs { background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27300%27%20height%3D%27300%27%20viewBox%3D%270%200%20300%20300%27%3E%20%3Cg%20fill%3D%27none%27%20stroke%3D%27%23D4A23A%27%20stroke-width%3D%271.4%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%20%3Cg%20transform%3D%27translate%2834%2C40%29%20rotate%28-16%29%27%3E%20%3Ccircle%20cx%3D%270%27%20cy%3D%27-7%27%20r%3D%276.5%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%279%27%20r%3D%276.5%27%2F%3E%20%3Cpath%20d%3D%27M5%20-5%20L46%2013%20M5%207%20L46%20-11%27%2F%3E%3Cpath%20d%3D%27M46%2013%20L60%2018%20M46%20-11%20L60%20-16%27%2F%3E%20%3C%2Fg%3E%20%3Cg%20transform%3D%27translate%28196%2C52%29%20rotate%2822%29%27%3E%20%3Cpath%20d%3D%27M0%2010%20q34%20-17%2062%20-5%20q5%202%200%207%20q-32%209%20-62%205%20q-5%20-2%200%20-7%20z%27%2F%3E%20%3Cpath%20d%3D%27M62%2012%20l24%207%20q7%202%205%209%20l-2%204%27%2F%3E%20%3C%2Fg%3E%20%3Cg%20transform%3D%27translate%2840%2C196%29%27%3E%20%3Cpath%20d%3D%27M0%2018%20a40%2040%200%200%201%2080%200%27%2F%3E%20%3Cpath%20d%3D%27M40%2018%20v-12%20M40%20-6%20a6%206%200%201%200%200%20.01%27%2F%3E%20%3Cpath%20d%3D%27M10%2018%20v8%20M22%2018%20v10%20M34%2018%20v8%20M46%2018%20v10%20M58%2018%20v8%20M70%2018%20v10%27%2F%3E%20%3C%2Fg%3E%20%3Cg%20transform%3D%27translate%28186%2C196%29%27%3E%20%3Crect%20x%3D%270%27%20y%3D%270%27%20width%3D%2778%27%20height%3D%2714%27%20rx%3D%274%27%2F%3E%20%3Cpath%20d%3D%27M7%2014%20V30%20M15%2014%20V30%20M23%2014%20V30%20M31%2014%20V30%20M39%2014%20V30%20M47%2014%20V30%20M55%2014%20V30%20M63%2014%20V30%20M71%2014%20V30%27%2F%3E%20%3C%2Fg%3E%20%3Cg%20transform%3D%27translate%28150%2C150%29%27%20opacity%3D%270.85%27%3E%20%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2710%27%2F%3E%3Cpath%20d%3D%27M0%20-22%20V-10%20M0%2010%20V22%20M-22%200%20H-10%20M10%200%20H22%27%2F%3E%20%3C%2Fg%3E%20%3C%2Fg%3E%3C%2Fsvg%3E"); background-size:300px 300px; opacity:.13; }
+    .hero-art .frame { inset:20px; border:1px solid rgba(212,162,58,.22); border-radius:2px; }
+    .hero-art .frame::after { content:""; position:absolute; inset:7px; border:1px solid rgba(212,162,58,.10); border-radius:2px; }
+    .hero-art .grain { background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27170%27%20height%3D%27170%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.9%27%20numOctaves%3D%272%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E"); background-size:170px 170px; opacity:.06; mix-blend-mode:overlay; }
+    @media (max-width:767px){ .hero-art .frame { inset:12px; } .hero-art .frame::after { inset:5px; } .hero-art .motifs { opacity:.1; } }
 
     ::selection { background: #E8C46A; color: #0A0A0B; }
     :focus-visible { outline: 2px solid #F5D77E; outline-offset: 3px; border-radius: 4px; }
@@ -147,7 +169,14 @@
   <!-- ===================== HERO ===================== -->
   <section id="inicio" class="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
     <!-- Fondo base por si Three.js no carga -->
-    <div class="absolute inset-0 -z-20" style="background:radial-gradient(80% 60% at 50% 20%, rgba(232,196,106,.10), transparent 60%), #0A0A0B;"></div>
+    <!-- Fondo artístico de barbería (capas) -->
+    <div class="hero-art" aria-hidden="true">
+      <i class="rays"></i>
+      <i class="panels"></i>
+      <i class="motifs"></i>
+      <i class="frame"></i>
+      <i class="grain"></i>
+    </div>
     <!-- Lienzo 3D -->
     <canvas id="scene" class="absolute inset-0 -z-10 w-full h-full"></canvas>
     <!-- Vignette -->
@@ -434,31 +463,14 @@
       const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
       camera.position.set(0, 0, 10);
 
-      // ---------- Pared de barbería (fondo) ----------
-      function wallTexture() {
-        const W = 512, c = document.createElement('canvas'); c.width = c.height = W;
-        const x = c.getContext('2d');
-        x.fillStyle = '#101013'; x.fillRect(0, 0, W, W);
-        const panel = W / 4;                       // paneles verticales
-        for (let i = 0; i <= 4; i++) {
-          const px = i * panel;
-          x.fillStyle = 'rgba(0,0,0,.5)';            x.fillRect(px - 2, 0, 3, W);
-          x.fillStyle = 'rgba(255,236,195,.045)';    x.fillRect(px + 1, 0, 1, W);
-        }
-        for (let n = 0; n < 2400; n++) {           // grano sutil
-          x.fillStyle = 'rgba(255,240,210,' + (Math.random() * 0.05) + ')';
-          x.fillRect(Math.random() * W, Math.random() * W, 1, 1);
-        }
-        const t = new THREE.CanvasTexture(c);
-        t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 2);
-        t.colorSpace = THREE.SRGBColorSpace;
-        return t;
-      }
-      const wall = new THREE.Mesh(
+      // ---------- Plano receptor de sombra (el fondo artístico va en el DOM) ----------
+      const shadowCatcher = new THREE.Mesh(
         new THREE.PlaneGeometry(64, 38),
-        new THREE.MeshStandardMaterial({ map: wallTexture(), roughness: 0.96, metalness: 0 })
+        new THREE.ShadowMaterial({ opacity: 0.34 })
       );
-      wall.position.set(0, 0, -3.2); wall.receiveShadow = true; scene.add(wall);
+      shadowCatcher.position.set(0, 0, -3.2);
+      shadowCatcher.receiveShadow = true;
+      scene.add(shadowCatcher);
 
       // ---------- Montura en la pared (izquierda) ----------
       const mount = new THREE.Group(); scene.add(mount);   // estático
