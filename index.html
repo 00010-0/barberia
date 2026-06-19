@@ -183,7 +183,7 @@
     <div class="absolute inset-0 -z-10 vignette pointer-events-none"></div>
 
     <div class="relative z-10 px-5 text-center max-w-3xl mx-auto">
-      <p class="reveal text-xs sm:text-sm uppercase tracking-[0.35em] text-gold mb-7">Barbería &amp; Peluquería de autor</p>
+      <p class="reveal text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.35em] text-gold mb-7">Barbería &amp; Peluquería de autor</p>
 
       <h1 class="reveal relative inline-block mb-8">
         <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] rounded-full -z-10 pointer-events-none"
@@ -524,11 +524,25 @@
       function resize() {
         const w = canvas.clientWidth, h = canvas.clientHeight;
         renderer.setSize(w, h, false);
-        camera.aspect = w / h; camera.updateProjectionMatrix();
-        const small = w < 768;
-        camera.position.z = small ? 12 : 10;
-        mount.position.x = small ? -1.25 : -4.6;     // a la izquierda
-        mount.scale.setScalar(small ? 0.58 : 0.92);
+        camera.aspect = w / h;
+
+        // Tres niveles: móvil / tablet / escritorio
+        let z, s, xFrac;
+        if (w < 640)       { z = 12.5; s = 0.55; xFrac = 0.74; }   // móvil
+        else if (w < 1024) { z = 11.0; s = 0.78; xFrac = 0.62; }   // tablet
+        else               { z = 10.0; s = 0.92; xFrac = 0;    }   // escritorio
+        camera.position.z = z;
+        camera.updateProjectionMatrix();
+
+        if (xFrac > 0) {
+          // Posición proporcional al ancho visible: el poste se pega al borde izquierdo
+          const vH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * z;
+          const halfW = (vH * camera.aspect) / 2;
+          mount.position.x = -halfW * xFrac;
+        } else {
+          mount.position.x = -4.6;
+        }
+        mount.scale.setScalar(s);
       }
       window.addEventListener('resize', resize); resize();
 
