@@ -532,7 +532,7 @@
         if (!visible || hidden) return;
         const dt = clock.getDelta();
         if (!reduced) {
-          if (ready) spinner.rotation.y += dt * 0.4;   // el poste gira
+          // El poste permanece estático, fijo en la pared con su soporte.
           dust.rotation.y += dt * 0.02;
           const p = dust.geometry.attributes.position.array;
           for (let i = 1; i < p.length; i += 3) { p[i] += dt * 0.22; if (p[i] > 6) p[i] = -6; }
